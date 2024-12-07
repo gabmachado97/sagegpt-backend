@@ -2,7 +2,8 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})  # Restrict CORS to specific origin
+
 
 @app.route('/api/value', methods=['POST'])
 def post_value():
