@@ -84,11 +84,11 @@ def handle_query():
           try:
               response = qa.invoke({"query": query})
               result = response["result"]  # Extract the result from the response
-              return jsonify({"result": result})  # Send back the result as JSON
+              return _corsify_actual_response(jsonify({"result": result}))  # Send back the result as JSON
           except Exception as e:
-              return jsonify({"error": str(e)}), 500 
+              return _corsify_actual_response(jsonify({"error": str(e)}), 500 )
       else:
-          return jsonify({"error": "No query provided"}), 400 
+          return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
 
 
 if __name__ == "__main__":
