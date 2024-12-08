@@ -1,4 +1,7 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS, cross_origin
+
+
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.vectorstores import Chroma
 from langchain.prompts import PromptTemplate
@@ -6,6 +9,9 @@ from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
 
 app = Flask(__name__)
+CORS(app)
+
+
 
 # Initialize Embeddings
 embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
@@ -50,7 +56,8 @@ qa = RetrievalQA.from_chain_type(
     chain_type_kwargs={"prompt": prompt}
 )
 
-@app.route('/api/query', methods=['POST'])
+@app.route('/api/value', methods=['POST', 'OPTIONS'])
+@cross_origin(origins="http://localhost:5173")
 def handle_query():
     data = request.get_json()  # Receive JSON data from React
     query = data.get('query', '')
