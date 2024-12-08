@@ -77,8 +77,9 @@ def handle_query():
       return _build_cors_preflight_response()
     else:
       data = request.get_json()  # Receive JSON data from React
+      print(data)
       query = data.get("query", "")
-      response.headers.add("Access-Control-Allow-Origin", "*")
+      
       if query:
           try:
               response = qa.invoke({"query": query})
