@@ -2,3 +2,10 @@ Flask==3.0.3
 jsonify
 gunicorn
 flask-cors
+langchain
+langchain-community
+fastembed
+chromadb
+python-dotenv
+langchain-groq
+chainlit
