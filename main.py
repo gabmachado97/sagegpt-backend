@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -10,6 +10,18 @@ app = Flask(__name__)
 
 # Enable CORS for the entire app and allow all origins (adjust for production)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "https://your-frontend-url.com"]}})
+
+def _build_cors_preflight_response():
+    response = make_response()
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    response.headers.add("Access-Control-Allow-Headers", "*")
+    response.headers.add("Access-Control-Allow-Methods", "*")
+    return response
+
+
+def _corsify_actual_response(response):
+    response.headers.add("Access-Control-Allow-Origin", "*")
+    return response
 
 # Initialize Embeddings
 embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
@@ -60,18 +72,22 @@ qa = RetrievalQA.from_chain_type(
 
 @app.route("/api/value", methods=["POST", "OPTIONS"])
 def handle_query():
-    data = request.get_json()  # Receive JSON data from React
-    query = data.get("query", "")
 
-    if query:
-        try:
-            response = qa.invoke({"query": query})
-            result = response["result"]  # Extract the result from the response
-            return jsonify({"result": result})  # Send back the result as JSON
-        except Exception as e:
-            return jsonify({"error": str(e)}), 500
+    if request.method == "OPTIONS": # CORS preflight
+      return _build_cors_preflight_response()
     else:
-        return jsonify({"error": "No query provided"}), 400
+      data = request.get_json()  # Receive JSON data from React
+      query = data.get("query", "")
+      response.headers.add("Access-Control-Allow-Origin", "*")
+      if query:
+          try:
+              response = qa.invoke({"query": query})
+              result = response["result"]  # Extract the result from the response
+              return _corsify_actual_response(jsonify({"result": result}))  # Send back the result as JSON
+          except Exception as e:
+              return _corsify_actual_response(jsonify({"error": str(e)}), 500)
+      else:
+          return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
 
 
 if __name__ == "__main__":
