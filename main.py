@@ -78,7 +78,8 @@ def handle_query():
       return _build_cors_preflight_response()
     else:
       data = request.get_json()  # Receive JSON data from React
-      app.logger.info('received data:'+ data)
+        
+      app.logger.info(data)
       query = data.get("query", "")
 
       if query:
