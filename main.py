@@ -90,7 +90,8 @@ def handle_query():
           except Exception as e:
               yield f"error: {str(e)}\n\n"
 
-        return _corsify_actual_response(jsonify({"result": generate_response()})) 
+        resps = generate_response()
+        return _corsify_actual_response(jsonify({"result": resps})) 
       else:
         return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
 
