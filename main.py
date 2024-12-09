@@ -83,16 +83,16 @@ def handle_query():
       query = data.get("query", "")
 
       if query:
-          def generate_response():
-            try:
-                for chunk in qa.invoke_stream({"query": query}):  # Assume qa.invoke_stream exists
-                    yield f"data: {chunk}\n\n"
-            except Exception as e:
-                yield f"error: {str(e)}\n\n"
+        def generate_response():
+          try:
+            for chunk in qa.invoke_stream({"query": query}):  # Assume qa.invoke_stream exists
+              yield f"data: {chunk}\n\n"
+          except Exception as e:
+              yield f"error: {str(e)}\n\n"
 
         return _corsify_actual_response(jsonify({"result": generate_response()})) 
       else:
-          return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
+        return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
 
 
 if __name__ == "__main__":
