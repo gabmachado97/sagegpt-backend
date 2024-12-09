@@ -33,12 +33,12 @@ vs = Qdrant.from_existing_collection(
         collection_name="sage_manual",
     )
 
-#chat_model = ChatGroq(
-#    temperature=0,
-#    model_name="llama-3.1-13b",
-    #model_name="llama-3.1-70b-versatile",
-#    api_key="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",
-#)
+chat_model = ChatGroq(
+    temperature=0,
+    model_name="llama-3.1-13b",
+   #model_name="llama-3.1-70b-versatile",
+    api_key="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",
+)
 
 #retriever = vs.as_retriever(search_kwargs={"k": 1})
 
