@@ -66,34 +66,28 @@ qa = RetrievalQA.from_chain_type(
     chain_type_kwargs={"prompt": prompt},
 )
 
-@app.route("/api/value", methods=["GET", "POST", "OPTIONS"])
+@app.route("/api/value", methods=["POST", "OPTIONS"])
 def handle_query():
     if request.method == "OPTIONS":  # CORS preflight
         return _build_cors_preflight_response()
-    elif request.method == "POST":  # Handle the initial query
-        data = request.get_json()  # Receive JSON data from React
+    elif request.method == "POST":  # Receive query
+        data = request.get_json()  # Get JSON data
         query = data.get("query", "")
-
         if query:
-            global latest_query
-            latest_query = query  # Store the query for SSE
-            return jsonify({"status": "Query received"})
+            try:
+                # Stream the response
+                def stream_response():
+                    response = qa.run(query)  # Run the query with RetrievalQA
+                    # Simulate chunking (you can customize this logic)
+                    for i in range(0, len(response), 50):  # Chunk size = 50 characters
+                        yield f"data: {response[i:i+50]}\n\n"
+                    yield "event: end\ndata: \n\n"  # Send an 'end' event
+
+                return Response(stream_response(), content_type="text/event-stream")
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
         else:
             return jsonify({"error": "No query provided"}), 400
-
-    elif request.method == "GET":  # Handle streaming response
-        def generate_response():
-            try:
-                if "latest_query" in globals():
-                    query = latest_query
-                    for chunk in qa.invoke_stream({"query": query}):  # Stream chunks
-                        yield f"data: {chunk}\n\n"
-                else:
-                    yield "data: No query available\n\n"
-            except Exception as e:
-                yield f"data: error: {str(e)}\n\n"
-
-        return Response(generate_response(), content_type="text/event-stream")
 
 
 if __name__ == "__main__":
