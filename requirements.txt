@@ -8,3 +8,4 @@ fastembed
 chromadb
 langchain-groq
 chainlit
+qdrant_client
