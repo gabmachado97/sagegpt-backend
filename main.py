@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, Response, make_response
 from flask_cors import CORS
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
 from langchain.vectorstores import Qdrant
@@ -7,7 +7,6 @@ from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
 
 app = Flask(__name__)
-
 
 # Enable CORS for the entire app and allow all origins (adjust for production)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "https://your-frontend-url.com"]}})
@@ -18,7 +17,6 @@ def _build_cors_preflight_response():
     response.headers.add("Access-Control-Allow-Headers", "*")
     response.headers.add("Access-Control-Allow-Methods", "*")
     return response
-
 
 def _corsify_actual_response(response):
     response.headers.add("Access-Control-Allow-Origin", "*")
@@ -36,7 +34,6 @@ vs = Qdrant.from_existing_collection(
 chat_model = ChatGroq(
     temperature=0,
     model_name="llama3-8b-8192",
-   #model_name="llama-3.1-70b-versatile",
     api_key="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",
 )
 
@@ -52,14 +49,12 @@ Only return the helpful answer below and nothing else.
 Helpful answer:
 """
 
-
 def set_custom_prompt():
     """
     Prompt template for QA retrieval for each vectorstore
     """
     prompt = PromptTemplate(template=custom_prompt_template, input_variables=["context", "question"])
     return prompt
-
 
 prompt = set_custom_prompt()
 
@@ -71,30 +66,26 @@ qa = RetrievalQA.from_chain_type(
     chain_type_kwargs={"prompt": prompt},
 )
 
-
 @app.route("/api/value", methods=["POST", "OPTIONS"])
 def handle_query():
-
-    if request.method == "OPTIONS": # CORS preflight
-      return _build_cors_preflight_response()
+    if request.method == "OPTIONS":  # CORS preflight
+        return _build_cors_preflight_response()
     else:
-      data = request.get_json()  # Receive JSON data from React
-        
-      query = data.get("query", "")
+        data = request.get_json()  # Receive JSON data from React
+        query = data.get("query", "")
 
-      if query:
-        def generate_response():
-          try:
-            for chunk in qa.invoke_stream({"query": query}):  # Assume qa.invoke_stream exists
-              yield f"data: {chunk}\n\n"
-          except Exception as e:
-              yield f"error: {str(e)}\n\n"
+        if query:
+            def generate_response():
+                try:
+                    for chunk in qa.invoke_stream({"query": query}):  # Streaming chunks
+                        yield f"data: {chunk}\n\n"
+                except Exception as e:
+                    yield f"data: error: {str(e)}\n\n"
 
-        resps = generate_response()
-        return _corsify_actual_response(jsonify({"result": resps})) 
-      else:
-        return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
-
+            # Return a streaming response
+            return Response(generate_response(), content_type="text/event-stream")
+        else:
+            return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
 
 if __name__ == "__main__":
     app.run(debug=True)
