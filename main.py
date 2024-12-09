@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from langchain_community.embeddings.fastembed import FastEmbedEmbeddings
-from langchain_community.vectorstores import Chroma
+from langchain.vectorstores import Qdrant
 from langchain.prompts import PromptTemplate
 from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
@@ -26,11 +26,11 @@ def _corsify_actual_response(response):
 # Initialize Embeddings
 embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
 
-vs = Chroma(
-    collection_name="rag",
-    embedding_function=embed_model,
-    persist_directory="./db",  # Where to save data locally, remove if not necessary
-)
+vs = Qdrant.from_existing_collection(
+        embedding=embed_model,
+        path="./db",
+        collection_name="sage_manual",
+    )
 
 chat_model = ChatGroq(
     temperature=0,
