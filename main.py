@@ -78,12 +78,13 @@ def handle_query():
       return _build_cors_preflight_response()
     else:
       data = request.get_json()  # Receive JSON data from React
-      print(data)
+      app.logger.info('received data:'+ data)
       query = data.get("query", "")
 
       if query:
           try:
               response = qa.invoke({"query": query})
+              app.logger.info('received respose:'+ response)
               result = response["result"]  # Extract the result from the response
               return _corsify_actual_response(jsonify({"result": result}))  # Send back the result as JSON
           except Exception as e:
