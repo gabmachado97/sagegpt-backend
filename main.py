@@ -34,11 +34,12 @@ vs = Chroma(
 
 chat_model = ChatGroq(
     temperature=0,
-    model_name="llama-3.1-70b-versatile",
+    model_name="llama-3.1-13b",
+    #model_name="llama-3.1-70b-versatile",
     api_key="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",
 )
 
-retriever = vs.as_retriever(search_kwargs={"k": 3})
+retriever = vs.as_retriever(search_kwargs={"k": 1})
 
 custom_prompt_template = """Use the following pieces of information to answer the user's question.
 If you don't know the answer, just say that you don't know, don't try to make up an answer.
@@ -79,7 +80,7 @@ def handle_query():
       data = request.get_json()  # Receive JSON data from React
       print(data)
       query = data.get("query", "")
-      
+
       if query:
           try:
               response = qa.invoke({"query": query})
