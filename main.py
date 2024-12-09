@@ -66,26 +66,35 @@ qa = RetrievalQA.from_chain_type(
     chain_type_kwargs={"prompt": prompt},
 )
 
-@app.route("/api/value", methods=["POST", "OPTIONS"])
+@app.route("/api/value", methods=["GET", "POST", "OPTIONS"])
 def handle_query():
     if request.method == "OPTIONS":  # CORS preflight
         return _build_cors_preflight_response()
-    else:
+    elif request.method == "POST":  # Handle the initial query
         data = request.get_json()  # Receive JSON data from React
         query = data.get("query", "")
 
         if query:
-            def generate_response():
-                try:
-                    for chunk in qa.invoke_stream({"query": query}):  # Streaming chunks
-                        yield f"data: {chunk}\n\n"
-                except Exception as e:
-                    yield f"data: error: {str(e)}\n\n"
-
-            # Return a streaming response
-            return Response(generate_response(), content_type="text/event-stream")
+            global latest_query
+            latest_query = query  # Store the query for SSE
+            return jsonify({"status": "Query received"})
         else:
-            return _corsify_actual_response(jsonify({"error": "No query provided"}), 400)
+            return jsonify({"error": "No query provided"}), 400
+
+    elif request.method == "GET":  # Handle streaming response
+        def generate_response():
+            try:
+                if "latest_query" in globals():
+                    query = latest_query
+                    for chunk in qa.invoke_stream({"query": query}):  # Stream chunks
+                        yield f"data: {chunk}\n\n"
+                else:
+                    yield "data: No query available\n\n"
+            except Exception as e:
+                yield f"data: error: {str(e)}\n\n"
+
+        return Response(generate_response(), content_type="text/event-stream")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
