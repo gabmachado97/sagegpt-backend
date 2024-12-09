@@ -25,13 +25,13 @@ def _corsify_actual_response(response):
     return response
 
 # Initialize Embeddings
-#embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
+embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
 
-#vs = Qdrant.from_existing_collection(
-#        embedding=embed_model,
-#        path="./db",
-#        collection_name="sage_manual",
-#    )
+vs = Qdrant.from_existing_collection(
+        embedding=embed_model,
+        path="./db",
+        collection_name="sage_manual",
+    )
 
 #chat_model = ChatGroq(
 #    temperature=0,
