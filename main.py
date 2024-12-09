@@ -40,7 +40,7 @@ chat_model = ChatGroq(
     api_key="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",
 )
 
-retriever = vs.as_retriever(search_kwargs={"k": 1})
+retriever = vs.as_retriever(search_kwargs={"k": 1, "fetch_k": 10})
 
 custom_prompt_template = """Use the following pieces of information to answer the user's question.
 If you don't know the answer, just say that you don't know, don't try to make up an answer.
@@ -67,7 +67,7 @@ qa = RetrievalQA.from_chain_type(
     llm=chat_model,
     chain_type="stuff",
     retriever=retriever,
-    return_source_documents=True,
+    return_source_documents=False,
     chain_type_kwargs={"prompt": prompt},
 )
 
