@@ -1,6 +1,7 @@
 Flask==3.0.3
 jsonify
 gunicorn
+gevent
 flask-cors
 langchain
 langchain-community
