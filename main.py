@@ -25,22 +25,22 @@ def _corsify_actual_response(response):
     return response
 
 # Initialize Embeddings
-embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
+#embed_model = FastEmbedEmbeddings(model_name="BAAI/bge-base-en-v1.5")
 
-vs = Qdrant.from_existing_collection(
-        embedding=embed_model,
-        path="./db",
-        collection_name="sage_manual",
-    )
+#vs = Qdrant.from_existing_collection(
+#        embedding=embed_model,
+#        path="./db",
+#        collection_name="sage_manual",
+#    )
 
-chat_model = ChatGroq(
-    temperature=0,
-    model_name="llama-3.1-13b",
+#chat_model = ChatGroq(
+#    temperature=0,
+#    model_name="llama-3.1-13b",
     #model_name="llama-3.1-70b-versatile",
-    api_key="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",
-)
+#    api_key="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",
+#)
 
-retriever = vs.as_retriever(search_kwargs={"k": 1})
+#retriever = vs.as_retriever(search_kwargs={"k": 1})
 
 custom_prompt_template = """Use the following pieces of information to answer the user's question.
 If you don't know the answer, just say that you don't know, don't try to make up an answer.
@@ -63,13 +63,13 @@ def set_custom_prompt():
 
 prompt = set_custom_prompt()
 
-qa = RetrievalQA.from_chain_type(
-    llm=chat_model,
-    chain_type="stuff",
-    retriever=retriever,
-    return_source_documents=True,
-    chain_type_kwargs={"prompt": prompt},
-)
+#qa = RetrievalQA.from_chain_type(
+#    llm=chat_model,
+#    chain_type="stuff",
+#    retriever=retriever,
+#    return_source_documents=True,
+#    chain_type_kwargs={"prompt": prompt},
+#)
 
 
 @app.route("/api/value", methods=["POST", "OPTIONS"])
@@ -84,8 +84,9 @@ def handle_query():
 
       if query:
           try:
-              response = qa.invoke({"query": query})
-              result = response["result"]  # Extract the result from the response
+            #  response = qa.invoke({"query": query})
+            #  result = response["result"]  # Extract the result from the response
+              return _corsify_actual_response(jsonify({"result": query}))  # Send back the result as JSON
               return _corsify_actual_response(jsonify({"result": result}))  # Send back the result as JSON
           except Exception as e:
               return _corsify_actual_response(jsonify({"error": str(e)}), 500 )
