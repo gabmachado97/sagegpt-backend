@@ -63,13 +63,13 @@ def set_custom_prompt():
 
 prompt = set_custom_prompt()
 
-#qa = RetrievalQA.from_chain_type(
-#    llm=chat_model,
-#    chain_type="stuff",
-#    retriever=retriever,
-#    return_source_documents=True,
-#    chain_type_kwargs={"prompt": prompt},
-#)
+qa = RetrievalQA.from_chain_type(
+    llm=chat_model,
+    chain_type="stuff",
+    retriever=retriever,
+    return_source_documents=True,
+    chain_type_kwargs={"prompt": prompt},
+)
 
 
 @app.route("/api/value", methods=["POST", "OPTIONS"])
