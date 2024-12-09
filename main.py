@@ -35,7 +35,7 @@ vs = Qdrant.from_existing_collection(
 
 chat_model = ChatGroq(
     temperature=0,
-    model_name="llama-3.1-13b",
+    model_name="llama3-8b-8192",
    #model_name="llama-3.1-70b-versatile",
     api_key="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",
 )
