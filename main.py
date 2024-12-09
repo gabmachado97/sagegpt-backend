@@ -84,7 +84,7 @@ def handle_query():
       if query:
           try:
               response = qa.invoke({"query": query})
-              app.logger.info('received respose:'+ response)
+              app.logger.info(response)
               result = response["result"]  # Extract the result from the response
               return _corsify_actual_response(jsonify({"result": result}))  # Send back the result as JSON
           except Exception as e:
