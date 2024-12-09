@@ -7,6 +7,7 @@ from langchain.chains import RetrievalQA
 from langchain_groq import ChatGroq
 
 app = Flask(__name__)
+app.logger.info('teste')
 
 # Enable CORS for the entire app and allow all origins (adjust for production)
 CORS(app, resources={r"/*": {"origins": ["http://localhost:5173", "https://your-frontend-url.com"]}})
@@ -61,7 +62,7 @@ def set_custom_prompt():
 
 
 prompt = set_custom_prompt()
-
+app.logger.info('teste2')
 qa = RetrievalQA.from_chain_type(
     llm=chat_model,
     chain_type="stuff",
@@ -69,7 +70,7 @@ qa = RetrievalQA.from_chain_type(
     return_source_documents=True,
     chain_type_kwargs={"prompt": prompt},
 )
-
+app.logger.info('teste3')
 
 @app.route("/api/value", methods=["POST", "OPTIONS"])
 def handle_query():
